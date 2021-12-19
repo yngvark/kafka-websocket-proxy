@@ -1,0 +1,57 @@
+name: CD
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - pkg/**
+      - main.go
+      - Dockerfile
+      - .github/workflows/cd.yaml
+
+jobs:
+  CD:
+    #needs: CI
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: '0'
+      - uses: actions/setup-go@v2
+        with:
+          go-version: '^1.16'
+
+      - run: make check
+
+      - name: Github Tag Bump
+        id: bump_version
+        uses: anothrNick/github-tag-action@1.36.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEFAULT_BUMP: patch
+          RELEASE_BRANCHES: main
+
+      # GITHUB_ENV doc: https://docs.github.com/en/actions/learn-github-actions/workflow-commands-for-github-actions#setting-an-environment-variable
+      - run: echo "IMAGE_REGISTRY=ghcr.io/yngvark" >> $GITHUB_ENV
+      - run: echo "IMAGE_NAME=go-rest-api-template" >> $GITHUB_ENV
+      - run: echo "IMAGE_TAG=$(git tag | sort -V | tail -1)" >> $GITHUB_ENV
+      - run: echo "IMAGE_URI=${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}" >> $GITHUB_ENV
+
+      - name: Build the Docker image
+        run: |
+          echo GITHUB_ENV: $GITHUB_ENV
+          cat $GITHUB_ENV
+          docker build --tag ${{ env.IMAGE_URI }} .
+
+      - name: Login to GitHub Packages Docker Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push Docker image
+        run: docker push ${{ env.IMAGE_URI }}
+
