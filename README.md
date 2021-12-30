@@ -1,26 +1,36 @@
-# Go REST API template
+# kafka-websocket-proxy
 
-## Run the app
+Two-way proxy between the browser and a Kafka instance.
 
-```shell
+## Running
+
+```bash
 make run
-curl http://localhost:8080
 ```
 
-## CI/CD
+or
 
-This repository has been set up with CI/CD. Take a look at the Github Actions for this repository.
+```bash
+make run-docker
+```
 
-This includes
+## API
 
-* Build and test
-* Code coverage (CodeQL analysis)
-* On merge to master, git tag, and push docker image to GitHub packages
+```javascript
+const ws = WebSocket("/v1/broker/?topic=mytopic1,mytopic2,mytopic3")
 
-## Help
+ws.onmessage = (event) => {
+    console.log("Message: " + event.data)
+}
 
-To see what you can do, run
+ws.send({
+    topic: "mytopic2",
+    data: "hello!",
+})
 
-```shell
-make
+ws.send({
+    topic: "mytopic,mytopic3",
+    data: "hello!",
+})
+
 ```

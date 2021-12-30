@@ -1,4 +1,4 @@
-APP_NAME		= go-rest-api-template
+APP_NAME		= kafka-websocket-proxy
 
 SHELL			= bash
 
