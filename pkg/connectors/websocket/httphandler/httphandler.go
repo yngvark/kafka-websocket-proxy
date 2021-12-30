@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/yngvark/kafka-websocket-proxy/pkg/connectors/websocket/httphandler/broadcast"
+	"github.com/yngvark/kafka-websocket-proxy/pkg/lib/broadcast"
 	"go.uber.org/zap"
 
 	"github.com/gorilla/websocket"

@@ -1,10 +1,9 @@
 package broadcast_test
 
 import (
-	"fmt"
 	"testing"
 
-	"github.com/yngvark/kafka-websocket-proxy/pkg/connectors/websocket/httphandler/broadcast"
+	"github.com/yngvark/kafka-websocket-proxy/pkg/lib/broadcast"
 
 	"github.com/stretchr/testify/require"
 
@@ -20,15 +19,13 @@ func TestPubSub(t *testing.T) {
 		broadcaster.AddSubscriber(testSubscriber)
 
 		// When
-		fmt.Println("sending")
 		go func() {
-			err := broadcaster.SendMsg("YO")
+			err := broadcaster.BroadCast("hi")
 			require.NoError(t, err)
 		}()
 
 		// Then
-		fmt.Println("receiving")
 		lastMsgReceived := <-testSubscriber
-		assert.Equal(t, "YO", lastMsgReceived)
+		assert.Equal(t, "hi", lastMsgReceived)
 	})
 }

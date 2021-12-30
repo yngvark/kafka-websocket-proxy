@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/yngvark/kafka-websocket-proxy/pkg/connectors/kafka"
 	"github.com/yngvark/kafka-websocket-proxy/pkg/connectors/websocket"
+	"github.com/yngvark/kafka-websocket-proxy/pkg/connectors/websocket2"
 	"github.com/yngvark/kafka-websocket-proxy/pkg/lib/oslookup"
 	"github.com/yngvark/kafka-websocket-proxy/pkg/lib/pubsub"
 	"go.uber.org/zap"
@@ -14,10 +15,17 @@ import (
 func (p Proxy) Run() error {
 	subscriber := make(chan string)
 
+	// Handle Kafka
 	kafkaPublisher, kafkaConsumer, err := pubSubForKafka(p.context, p.cancelFn, p.logger, subscriber)
 	if err != nil {
 		return fmt.Errorf("creating kafka connectors: %w", err)
 	}
+
+	// Handle websockets
+	websocketListener := websocket2.NewListener("/v1/broker")
+	websocketListener.Run()
+
+	// TODO how to connect websockets with kafka
 
 	// Close producer and consumer when done
 	defer func() {

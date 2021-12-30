@@ -1,11 +1,8 @@
 // Package broadcast knows how to broadcast messages to subscribers
 package broadcast
 
-import "github.com/yngvark/kafka-websocket-proxy/pkg/lib/pubsub"
-
 // Broadcaster is used for sending (broadcasting) messages to a number of subscribers
 type Broadcaster struct {
-	pubsub.Publisher
 	subscribers []chan<- string
 }
 
